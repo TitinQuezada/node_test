@@ -1,7 +1,5 @@
 const sendGrid = require("@sendgrid/mail");
-sendGrid.setApiKey(
-  "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"
-);
+sendGrid.setApiKey("");
 const senderEmail = "joanmanueltitin@gmail.com";
 
 const sendVerifyEmail = async (email, verifyCode) => {
