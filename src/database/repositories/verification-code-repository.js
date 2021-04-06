@@ -1,19 +1,22 @@
 const { client } = require("../index");
-const database = "PruebaMongo";
 const collection = "VerificationCodes";
 
-const create = (verificationCode) => {
-  client.connect(async (err) => {
-    const collectionResult = client.db(database).collection(collection);
+const create = async (verificationCode) => {
+  await client.connect();
 
-    await collectionResult.insertOne(verificationCode);
-  });
+  const collectionResult = client
+    .db(process.env.DATABASE)
+    .collection(collection);
+
+  await collectionResult.insertOne(verificationCode);
 };
 
 const find = async (verificationNumber) => {
   await client.connect();
 
-  const collectionResult = client.db(database).collection(collection);
+  const collectionResult = client
+    .db(process.env.DATABASE)
+    .collection(collection);
 
   return await collectionResult.findOne({
     verificationNumber: +verificationNumber,
@@ -23,7 +26,9 @@ const find = async (verificationNumber) => {
 const inactivate = async (verificationCode) => {
   await client.connect();
 
-  const collectionResult = client.db(database).collection(collection);
+  const collectionResult = client
+    .db(process.env.DATABASE)
+    .collection(collection);
 
   await collectionResult.updateOne(
     {

@@ -4,55 +4,55 @@ const statuses = require("../enums/statuses");
 
 const userRepository = require("../database/repositories/user-repository");
 const verificationCodeRepository = require("../database/repositories/verification-code-repository");
+const generator = require("../utils/generator");
+const operationResult = require("../utils/operation-result");
 
-const add = async ({
-  email,
-  name,
-  lastname,
-  sex,
-  birtday,
-  password,
-  rolId,
-}) => {
-  const userToCreate = {
-    email,
-    name,
-    lastname,
-    sex,
-    birtday,
-    password: encriptService.encript(password),
-    rolId,
-    status: statuses.inactive,
-  };
+const add = async (user) => {
+  try {
+    const userToCreate = {
+      email: user.email,
+      name: user.name,
+      lastname: user.lastname,
+      sex: user.sex,
+      birtday: user.birtday,
+      password: encriptService.encript(user.password),
+      rolId: user.rolId,
+      status: statuses.inactive,
+    };
 
-  userRepository.create(userToCreate);
+    await userRepository.create(userToCreate);
 
-  const verificationNumber = getVerificationNumber();
+    const verificationNumber = generator.generateVerificationNumber();
 
-  await emailService.sendVerifyEmail(email, verificationNumber);
+    await emailService.sendVerifyEmail(user.email, verificationNumber);
 
-  verificationCodeRepository.create({
-    email,
-    verificationNumber,
-    status: statuses.active,
-  });
-};
+    await verificationCodeRepository.create({
+      email: user.email,
+      verificationNumber,
+      status: statuses.active,
+    });
 
-const getVerificationNumber = () => {
-  const maxNumber = 999999;
-  const minNumber = 100000;
-
-  return Math.floor(Math.random() * (maxNumber - minNumber)) + minNumber;
+    return operationResult.ok();
+  } catch (error) {
+    return operationResult.fail();
+  }
 };
 
 const activateUser = async (email, verificationNumber) => {
-  const verificationCode = await verificationCodeRepository.find(
-    verificationNumber
-  );
+  try {
+    const verificationCode = await verificationCodeRepository.find(
+      verificationNumber
+    );
 
-  if (verificationCode?.status === statuses.active) {
-    await verificationCodeRepository.inactivate(verificationNumber);
-    await userRepository.activate(email);
+    if (verificationCode?.status === statuses.active) {
+      await verificationCodeRepository.inactivate(verificationNumber);
+      await userRepository.activate(email);
+      return operationResult.ok();
+    } else {
+      return operationResult.fail("Este link ha expirado");
+    }
+  } catch (error) {
+    return operationResult.fail();
   }
 };
 

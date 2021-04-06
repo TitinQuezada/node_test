@@ -1,6 +1,6 @@
 const sendGrid = require("@sendgrid/mail");
-sendGrid.setApiKey("");
-const senderEmail = "joanmanueltitin@gmail.com";
+sendGrid.setApiKey(process.env.SEND_GRID_API_KEY);
+const senderEmail = process.env.SEND_GRID_SENDER_EMAIL;
 
 const sendVerifyEmail = async (email, verifyCode) => {
   const msg = {

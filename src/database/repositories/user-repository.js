@@ -1,22 +1,24 @@
 const { client } = require("../index");
-const database = "PruebaMongo";
 const collection = "Users";
 
-let controller = {};
+const controller = {};
 
 controller.create = async (user) => {
   await client.connect();
 
-  const collectionResult = client.db(database).collection(collection);
+  const collectionResult = client
+    .db(process.env.DATABASE)
+    .collection(collection);
 
-  console.log("prueba");
   await collectionResult.insertOne(user);
 };
 
 controller.activate = async (email) => {
   await client.connect();
 
-  const collectionResult = client.db(database).collection(collection);
+  const collectionResult = client
+    .db(process.env.DATABASE)
+    .collection(collection);
 
   await collectionResult.updateOne(
     {
@@ -24,6 +26,18 @@ controller.activate = async (email) => {
     },
     { $set: { status: 1 } }
   );
+};
+
+controller.find = async (email) => {
+  await client.connect();
+
+  const collectionResult = client
+    .db(process.env.DATABASE)
+    .collection(collection);
+
+  return await collectionResult.findOne({
+    email,
+  });
 };
 
 module.exports = controller;
