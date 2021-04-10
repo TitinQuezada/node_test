@@ -2,9 +2,14 @@ const userRpository = require("../database/repositories/user-repository");
 const encriptService = require("../services/encript-service");
 const operationResult = require("../utils/operation-result");
 const jwt = require("jsonwebtoken");
+const statuses = require("../enums/statuses");
 
 const auth = async (email, password) => {
   const user = await userRpository.find(email);
+
+  if (user?.status == statuses.active) {
+    return operationResult.fail("El usuario se encuentra inactivo");
+  }
 
   if (user?.password === encriptService.encript(password)) {
     const token = buildToken(user);

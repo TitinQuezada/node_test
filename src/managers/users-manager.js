@@ -56,7 +56,56 @@ const activateUser = async (email, verificationNumber) => {
   }
 };
 
+const get = async (email) => {
+  try {
+    const user = await userRepository.find(email);
+
+    if (!user) {
+      return operationResult.fail("Usuario no encontrado");
+    }
+
+    const userResult = buildUser(user);
+
+    return operationResult.ok(userResult);
+  } catch (error) {
+    return operationResult.fail();
+  }
+};
+
+const buildUser = (user) => ({
+  email: user.email,
+  name: user.name,
+  lastname: user.lastname,
+  sex: user.sex,
+  birtday: user.birtday,
+  rolId: user.rolId,
+  status: user.status,
+});
+
+const update = async (user) => {
+  try {
+    await userRepository.update(user);
+
+    return operationResult.ok();
+  } catch (error) {
+    return operationResult.fail();
+  }
+};
+
+const deletetion = async (email) => {
+  try {
+    await userRepository.delete(email);
+
+    return operationResult.ok();
+  } catch (error) {
+    return operationResult.fail();
+  }
+};
+
 module.exports = {
   add,
   activateUser,
+  get,
+  update,
+  deletetion,
 };

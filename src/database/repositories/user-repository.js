@@ -1,3 +1,4 @@
+const statuses = require("../../enums/statuses");
 const { client } = require("../index");
 const collection = "Users";
 
@@ -38,6 +39,43 @@ controller.find = async (email) => {
   return await collectionResult.findOne({
     email,
   });
+};
+
+controller.update = async (user) => {
+  await client.connect();
+
+  const collectionResult = client
+    .db(process.env.DATABASE)
+    .collection(collection);
+
+  await collectionResult.updateOne(
+    {
+      email: user.email,
+    },
+    {
+      $set: {
+        name: user.name,
+        lastname: user.lastname,
+        sex: user.sex,
+        birtday: user.birtday,
+        rolId: user.rolId,
+        status: user.status,
+      },
+    }
+  );
+
+  controller.delete = async (email) => {
+    await collectionResult.updateOne(
+      {
+        email: email,
+      },
+      {
+        $set: {
+          status: statuses.inactive,
+        },
+      }
+    );
+  };
 };
 
 module.exports = controller;
